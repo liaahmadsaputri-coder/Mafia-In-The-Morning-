@@ -11,8 +11,9 @@ body{background:#0a0a0a;color:#f5e6b8;display:flex;justify-content:center;min-he
 .center{text-align:center}
 .gold{color:#d4af37}
 .card{background:#151515;border:1px solid #d4af37;border-radius:16px;padding:16px;margin:14px 0}
-.btn{width:100%;padding:15px;border:none;border-radius:12px;background:#d4af37;color:#000;font-weight:bold;font-size:16px;cursor:pointer;margin-top:12px}
+.btn{width:100%;padding:15px;border:none;border-radius:12px;background:#d4af37;color:#000;font-weight:bold;font-size:16px;cursor:pointer;margin-top:12px;position:relative;z-index:10}
 .btn2{background:transparent;color:#d4af37;border:1px solid #d4af37}
+.btnBig{padding:20px;font-size:18px;background:#ffcc00;box-shadow:0 0 20px #d4af37}
 .timer{font-size:48px;font-weight:bold;text-align:center;color:#d4af37}
 .timer.danger{color:#ff3b30;animation:blink .7s infinite}
 @keyframes blink{50%{opacity:.3}}
@@ -22,7 +23,7 @@ body{background:#0a0a0a;color:#f5e6b8;display:flex;justify-content:center;min-he
 .player.dead{opacity:.35;text-decoration:line-through}
 .player.mine{border:2px solid #d4af37;background:#2a2300}
 .small{font-size:13px;opacity:.85;line-height:1.6}
-.hidden{display:none}
+.hidden{display:none!important}
 select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;background:#1e1e1e;color:#fff;margin-top:10px}
 .log{background:#000;border:1px solid #333;border-radius:12px;padding:12px;font-size:13px;line-height:1.7;min-height:80px;white-space:pre-line}
 .badge{display:inline-block;padding:4px 10px;border-radius:20px;background:#d4af37;color:#000;font-size:11px;font-weight:bold}
@@ -30,26 +31,27 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
 .opt{width:100%;text-align:left;padding:12px;margin-top:8px;border-radius:10px;border:1px solid #333;background:#1e1e1e;color:#fff;cursor:pointer}
 .opt:active{background:#d4af37;color:#000}
 .brankasBox{border:2px dashed #d4af37;background:#1a1500}
+.alertBox{background:#3a0000;border:2px solid #ff3b30;border-radius:16px;padding:14px;margin:14px 0;text-align:center;animation:blink 1s infinite}
+.notifBox{background:#2a2300;border:2px solid #d4af37;border-radius:16px;padding:14px;margin:14px 0;text-align:center}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- 1. MASUK -->
 <div id="screen-home">
   <div class="center" style="margin-top:20px">
     <div class="vault">🔒</div>
     <div class="small" style="letter-spacing:3px">SEVENTEEN VERSION</div>
     <h1 class="gold" style="font-size:38px;line-height:1.05;margin:10px 0">MAFIA<br>IN THE<br>MORNING</h1>
     <p class="small">13 Orang. 1 Brankas. Siapa yang Berbohong.</p>
+    <p class="small" style="margin-top:10px">⚠️ Setiap permainan: Identitas, Ciri Mafia, dan Teka-teki DIACAK!</p>
     <button class="btn" onclick="show('screen-pilih')">MULAI MAIN ▶</button>
   </div>
 </div>
 
-<!-- 2. PILIH MEMBER -->
 <div id="screen-pilih" class="hidden">
   <h2 class="gold center">PILIH MAU JADI SIAPA?</h2>
-  <p class="small center">Klik 1 kartu. Itu akan jadi identitas kamu.</p>
+  <p class="small center">Klik 1 kartu. Peran kamu akan diacak!</p>
   <div class="grid" id="pilihGrid"></div>
   <div class="card hidden" id="pilihInfo">
     <b>Kamu pilih: <span class="gold" id="pilihNama">-</span></b>
@@ -57,7 +59,6 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
   </div>
 </div>
 
-<!-- 3. DAPET IDENTITAS + RULES + CIRI-CIRI MAFIA -->
 <div id="screen-arahan" class="hidden">
   <h2 class="gold center">IDENTITAS TERKUNCI!</h2>
   <div class="card center">
@@ -68,37 +69,29 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
   </div>
   <div class="card">
     <b class="gold">📋 RULES:</b>
-    <p class="small">
-    - Ada 13 member: 3 Mafia • 1 Dokter • 1 Polisi • 8 Warga<br>
-    - Sesi 1: 2 Menit tanya-tanya<br>
-    - Malam: Mafia membunuh, Dokter menyelamatkan<br>
-    - Pagi: Pengumuman siapa yang mati<br>
-    - Sesi 2: 2 Menit final + VOTE
-    </p>
+    <p class="small">- Ada 13 member: 3 Mafia • 1 Dokter • 1 Polisi • 8 Warga<br>- Sesi 1: 2 Menit tanya-tanya<br>- Malam: Mafia membunuh, Dokter menyelamatkan<br>- Pagi: Pengumuman siapa yang mati<br>- Sesi 2: 2 Menit final + VOTE<br>- Brankas bisa diambil siapa saja! Kalau brankas diambil orang lain, mafia akan memburu pengambilnya!</p>
   </div>
   <div class="card">
-    <b class="gold">👀 CIRI-CIRI MAFIA:</b>
+    <b class="gold">👀 CIRI-CIRI MAFIA (DIACAK GAME INI):</b>
     <p class="small" id="arahanCiri"></p>
-    <p class="small" style="margin-top:10px">Mafia selalu punya <b>2 dari 3 ciri di atas</b>. Warga TIDAK punya. Kamu harus tanya-tanya untuk cari tau ciri tiap orang!</p>
   </div>
   <button class="btn" onclick="startGamePlay()">AKU NGERTI, MULAI TANYA-TANYA!</button>
 </div>
 
-<!-- 4. TANYA-TANYA + SPACE BUAT BRANKAS DI SINI! -->
 <div id="screen-game" class="hidden">
   <div class="center">
     <span class="badge" id="phaseLabel">SESI 1 • SIANG</span>
     <div class="timer" id="timer">02:00</div>
     <p class="small">Interogasi! Klik 1 kartu untuk tanya.</p>
   </div>
+  <div id="huntAlert" class="alertBox hidden"><b>⚠️ MAFIA SEDANG MENCARIMU! ⚠️</b><p class="small">Brankas sudah diambil orang lain! Mafia sekarang memburu pengambil brankas! Sembunyi dan hati-hati!</p></div>
+  <div id="mafiaNotif" class="notifBox hidden"><b>🔔 NOTIF UNTUK MAFIA</b><p class="small" id="mafiaNotifText">Brankas sudah diambil seseorang!</p></div>
   <div class="card">
     <b>Identitas: <span class="gold" id="myNameShow">-</span> • Peran: <span class="gold" id="myRole">-</span></b>
     <p class="small" id="myCiriShow"></p>
     <p class="small">Ciri-ciri Mafia: <span class="gold" id="myCiriMafiaShow"></span></p>
   </div>
-
   <div class="grid" id="playersGrid"></div>
-
   <div class="card">
     <b>💬 Interogasi</b>
     <div class="log" id="chatLog">Klik 1 kartu di atas, lalu pilih pertanyaan di bawah.</div>
@@ -112,17 +105,13 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
       <button class="btn" onclick="askQuestion()">TANYA!</button>
     </div>
   </div>
-
-  <!-- ⭐⭐⭐ SPACE BUAT BRANKAS - DI SINI! ⭐⭐⭐ -->
   <div class="card brankasBox center" id="brankasSpace">
     <div style="font-size:50px" id="brankasIcon">🔒</div>
     <b class="gold" id="brankasTitle">BRANKAS - MASIH TERKUNCI</b>
-    <p class="small" id="brankasDesc">Brankas-nya ada di sini! Kalau kamu merasa udah tau siapa mafia-nya, atau kamu mau coba buka brankasnya, klik tombol di bawah! Nanti muncul teka-teki-nya, kamu pilih jawaban A / B / C.</p>
+    <p class="small" id="brankasDesc">Brankas-nya ada di sini! Klik tombol di bawah! Nanti muncul teka-teki SUSAH, kamu pilih jawaban A / B / C.</p>
     <p class="small" id="brankasStatus">Status: Belum dibuka • Teka-teki: Belum dijawab</p>
     <button class="btn" id="brankasBtn" onclick="openBrankas()">🔒 BUKA BRANKAS - JAWAB TEKA-TEKI</button>
   </div>
-  <!-- ⭐⭐⭐ AKHIR SPACE BRANKAS ⭐⭐⭐ -->
-
   <div id="nightAction" class="card hidden">
     <b id="nightTitle">🌙 Aksi Malam</b>
     <p class="small" id="nightDesc"></p>
@@ -137,19 +126,26 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
   </div>
 </div>
 
-<!-- 5. MALAM -->
 <div id="screen-night" class="hidden">
   <div class="center" style="margin-top:60px"><div style="font-size:70px">🌙</div><h1>MALAM TELAH TIBA...</h1><p class="small">Semua tertidur...</p><div class="card"><p class="small" id="nightProgress">Menunggu...</p></div></div>
 </div>
 
-<!-- 6. PAGI -->
+<!-- INI YANG TADI GAK BISA DIPENCET, UDAH DIBENERIN! -->
 <div id="screen-morning" class="hidden">
-  <div class="center" style="margin-top:30px"><div style="font-size:60px">☀️</div><h1 class="gold">PAGI TELAH TIBA...</h1><div class="card"><p class="small" id="morningText"></p></div><button class="btn" onclick="goSession2()">LANJUT KE SESI 2 - FINAL ▶</button></div>
+  <div class="center" style="margin-top:20px">
+    <div style="font-size:60px">☀️</div>
+    <h1 class="gold">PAGI TELAH TIBA...</h1>
+    <div class="card"><p class="small" id="morningText"></p></div>
+    <div id="morningHunt" class="alertBox hidden"><b>⚠️ MAFIA SEDANG MENCARIMU!</b><p class="small">Brankas sudah diambil orang lain semalam!</p></div>
+    <div id="morningMafiaNotif" class="notifBox hidden"><b>🔔 BRANKAS DIAMBIL!</b><p class="small">Seseorang sudah mengambil brankas semalam!</p></div>
+    <button class="btn btnBig" id="btnLanjutSesi2" onclick="goSession2()">LANJUT KE SESI 2 - FINAL ▶▶</button>
+    <button class="btn btn2" onclick="goSession2()">Kalo tombol atas gak bisa, klik ini!</button>
+    <p class="small" style="margin-top:10px">Klik tombol kuning di atas untuk lanjut!</p>
+  </div>
 </div>
 
-<!-- 7. TEKA-TEKI BRANKAS - MUNCUL KALO KLIK BUKA BRANKAS -->
 <div id="screen-brankas" class="hidden">
-  <div class="center" style="margin-top:20px"><div class="vault">🔒</div><h1 class="gold">BRANKAS TERKUNCI!</h1><p class="small">Jawab 3 teka-teki ini! Pilih jawaban yang paling benar!</p></div>
+  <div class="center" style="margin-top:20px"><div class="vault">🔒</div><h1 class="gold">BRANKAS TERKUNCI!</h1><p class="small">Teka-teki SUSAH! Jawab 3 dari 3 dengan benar! Gak ada kisi-kisi!</p></div>
   <div class="card">
     <b id="tekaTitle">Teka-teki 1 dari 3</b>
     <p class="small" id="tekaSoal" style="font-size:15px;margin-top:8px"></p>
@@ -159,7 +155,6 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
   <button class="btn btn2" onclick="backToGame()">⬅ BALIK KE TANYA-TANYA DULU</button>
 </div>
 
-<!-- 8. HASIL -->
 <div id="screen-result" class="hidden">
   <div class="center" style="margin-top:20px"><div class="vault" id="resultEmoji">💰</div><h1 class="gold" id="resultTitle">KAMU MENANG!</h1><p class="small" id="resultDesc"></p><div class="card" id="revealCard"></div><button class="btn" onclick="location.reload()">MAIN LAGI 🔄</button></div>
 </div>
@@ -167,24 +162,33 @@ select{width:100%;padding:12px;border-radius:10px;border:1px solid #333;backgrou
 </div>
 <script>
 let players=[], myIndex=0, selected=-1, session=1, timeLeft=120, timerInt=null, chosenMember="";
-let mafiaCiri=[], tekaIndex=0, tekaBenar=0, brankasOpened=false, brankasTried=false;
+let mafiaCiri=[], tekaIndex=0, tekaBenar=0, brankasOpened=false, brankasTried=false, brankasTakenByOther=false, brankasTakenByName="", currentTeka=[];
 const allMembers=["S.Coups","Jeonghan","Joshua","Jun","Hoshi","Wonwoo","Woozi","The8","Mingyu","DK","Seungkwan","Vernon","Dino"];
 const emojis={"S.Coups":"👑","Jeonghan":"😇","Joshua":"🦌","Jun":"🐱","Hoshi":"🐯","Wonwoo":"🦉","Woozi":"🎹","The8":"🩰","Mingyu":"🐶","DK":"🎤","Seungkwan":"🍊","Vernon":"🐢","Dino":"🦖"};
-const ciriList=[
-  {nama:"Suka Begadang"},
-  {nama:"Gugup Kalau Ditanya"},
-  {nama:"Suka Menyendiri"},
-  {nama:"Suka Berbohong"},
-  {nama:"Suka Ngintip Malam-Malam"}
-];
-const tekaList=[
-  {soal:"Aku selalu datang di malam hari, tapi tidak pernah terlihat. Aku bisa membuat orang takut, tapi aku bukan hantu. Aku adalah...", opts:["Mafia","Dokter","Polisi"], jawab:0},
-  {soal:"Ada 13 member, 3 di antaranya mafia. Jika 1 mafia sudah ketahuan, berapa mafia yang masih bersembunyi?", opts:["1","2","3"], jawab:1},
-  {soal:"Brankas ini hanya bisa dibuka oleh yang jujur. Siapa yang paling bisa dipercaya di pagi hari?", opts:["Yang banyak bohong","Yang jawabannya konsisten","Yang selalu diam"], jawab:1}
+const ciriList=[{nama:"Suka Begadang"},{nama:"Gugup Kalau Ditanya"},{nama:"Suka Menyendiri"},{nama:"Suka Berbohong"},{nama:"Suka Ngintip Malam-Malam"},{nama:"Suka Diam Tiba-Tiba"},{nama:"Tangan Dingin"},{nama:"Suka Ngalihin Pembicaraan"}];
+// TEKA-TEKI SUSAH BANGET - GAK NYANGKUT SEVENTEEN SAMA SEKALI - DIACAK TIAP GAME!
+const tekaPool=[
+{soal:"Aku punya kota tapi tidak ada rumah, punya hutan tapi tidak ada pohon, punya sungai tapi tidak ada air. Aku ini apa?", opts:["Peta","Buku","Lukisan"], jawab:0},
+{soal:"Semakin banyak kamu mengambil dari aku, semakin besar aku jadinya. Aku ini apa?", opts:["Lubang","Kantong","Hutang"], jawab:0},
+{soal:"Apa yang naik ke atas tapi tidak pernah turun?", opts:["Umur","Balon","Harga"], jawab:0},
+{soal:"Ada 3 lampu di dalam ruangan tertutup, 3 saklar di luar. Kamu hanya boleh masuk 1 kali. Bagaimana cara tahu saklar mana untuk lampu mana?", opts:["Nyalakan 1, tunggu panas, matikan, nyalakan 1 lagi","Tekan semua sekaligus","Tebak saja"], jawab:0},
+{soal:"Seorang pria mendorong mobilnya ke sebuah hotel dan langsung bangkrut. Kenapa?", opts:["Dia main Monopoli","Mobilnya mogok","Dia kehabisan bensin"], jawab:0},
+{soal:"Apa yang selalu datang tapi tidak pernah sampai?", opts:["Besok","Kereta","Surat"], jawab:0},
+{soal:"Jika 1+1=2, 2+2=8, 3+3=18, berapa 4+4?", opts:["32","16","24"], jawab:0},
+{soal:"Aku berbicara tanpa mulut dan mendengar tanpa telinga. Aku tidak punya tubuh tapi aku hidup dengan angin. Aku ini apa?", opts:["Gema","Bayangan","Mimpi"], jawab:0},
+{soal:"Ada sebuah keluarga: ayah, ibu, dan 5 anak. Tiap anak punya 1 adik perempuan. Berapa total orang dalam keluarga itu?", opts:["8","9","12"], jawab:0},
+{soal:"Apa yang bisa kamu pegang tanpa pernah menyentuhnya?", opts:["Janji","Udara","Bayangan"], jawab:0},
+{soal:"Jika kamu punya 3 apel dan kamu mengambil 2, berapa apel yang kamu punya?", opts:["2","1","3"], jawab:0},
+{soal:"Sebuah kereta listrik melaju ke selatan dengan kecepatan 100km/jam, angin bertiup ke utara. Kemana arah asapnya?", opts:["Tidak ada asap, kereta listrik","Ke selatan","Ke utara"], jawab:0},
+{soal:"Apa yang memiliki 4 kaki di pagi hari, 2 kaki di siang hari, dan 3 kaki di malam hari?", opts:["Manusia","Kucing","Meja"], jawab:0},
+{soal:"Kamu berada di ruangan gelap, hanya ada 1 korek api. Ada lilin, lampu minyak, dan kompor kayu. Apa yang kamu nyalakan pertama?", opts:["Korek api","Lilin","Lampu minyak"], jawab:0},
+{soal:"Berapa banyak bulan yang memiliki 28 hari?", opts:["Semua bulan","1 bulan","2 bulan"], jawab:0},
+{soal:"Jika sebuah pesawat jatuh tepat di perbatasan 2 negara, di negara mana korban akan dikubur?", opts:["Korban selamat tidak dikubur","Negara pertama","Negara kedua"], jawab:0}
 ];
 function show(id){
   document.querySelectorAll('.app > div').forEach(d=>d.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
+  let el=document.getElementById(id);
+  el.classList.remove('hidden');
   window.scrollTo(0,0);
 }
 function buildPilih(){
@@ -200,6 +204,7 @@ function buildPilih(){
 buildPilih();
 function confirmPilih(){
   if(!chosenMember) return;
+  // ACAK IDENTITAS TIAP GAME
   let shuffled=[...ciriList].sort(()=>Math.random()-0.5);
   mafiaCiri=shuffled.slice(0,3);
   let roles=["Mafia","Mafia","Mafia","Dokter","Polisi","Warga","Warga","Warga","Warga","Warga","Warga","Warga","Warga"].sort(()=>Math.random()-0.5);
@@ -215,13 +220,22 @@ function confirmPilih(){
     return {name:n, role:roles[i], ciri:ciri, alive:true, isMafia:roles[i]==="Mafia"};
   });
   myIndex=allMembers.indexOf(chosenMember);
+  // ACAK TEKA-TEKI TIAP GAME - ambil 3 random dari 16 soal, acak juga pilihan jawabannya
+  let pool=[...tekaPool].sort(()=>Math.random()-0.5).slice(0,3);
+  currentTeka=pool.map(q=>{
+    let correctText=q.opts[q.jawab];
+    let shuffledOpts=[...q.opts].sort(()=>Math.random()-0.5);
+    return {soal:q.soal, opts:shuffledOpts, jawab:shuffledOpts.indexOf(correctText)};
+  });
+  // Reset brankas tiap game
+  brankasOpened=false; brankasTried=false; brankasTakenByOther=false; brankasTakenByName=""; tekaBenar=0; session=1;
   document.getElementById('arahanNama').innerText=chosenMember;
   document.getElementById('arahanRole').innerText=players[myIndex].role;
   document.getElementById('arahanRoleDesc').innerText=
-    players[myIndex].role==="Mafia"?"Kamu Mafia. Tutupi ciri-ciri kamu! Kalau mafia menang, KAMU dapat hadiah dari brankas!":
+    players[myIndex].role==="Mafia"?"Kamu Mafia. Tutupi ciri-ciri kamu! Kalau mafia menang, KAMU dapat hadiah dari brankas! Kamu akan dapat notif kalau brankas diambil orang!":
     players[myIndex].role==="Dokter"?"Kamu Dokter. Malam hari kamu bisa menyelamatkan 1 orang.":
     players[myIndex].role==="Polisi"?"Kamu Polisi. Malam hari kamu bisa cek 1 orang.":
-    "Kamu Warga. Cari mafia dari ciri-cirinya!";
+    "Kamu Warga. Cari mafia dari ciri-cirinya! Kalau kamu ambil brankas, hati-hati, mafia sedang mencarimu!";
   document.getElementById('arahanCiri').innerHTML=mafiaCiri.map((c,i)=>`${i+1}. <b>${c.nama}</b>`).join("<br>");
   show('screen-arahan');
 }
@@ -231,10 +245,35 @@ function startGamePlay(){
   document.getElementById('myCiriShow').innerText="Ciri kamu: "+(players[myIndex].ciri.length?players[myIndex].ciri.join(", "):"Tidak ada ciri mencurigakan");
   document.getElementById('myCiriMafiaShow').innerText=mafiaCiri.map(c=>c.nama).join(" • ");
   show('screen-game');
-  renderPlayers(); startTimer(); updateBrankasBox();
+  renderPlayers(); startTimer(); updateBrankasBox(); updateAlerts();
+}
+function updateAlerts(){
+  let isMafia=players[myIndex].role==="Mafia";
+  // Kalo brankas diambil orang lain
+  if(brankasTakenByOther){
+    if(isMafia){
+      document.getElementById('mafiaNotif').classList.remove('hidden');
+      document.getElementById('mafiaNotifText').innerText=`🔔 BRANKAS DIAMBIL! ${brankasTakenByName} sudah mengambil brankas! Cepat buru dia sebelum dia kabur!`;
+    } else {
+      // Kalo kamu bukan mafia, tapi brankas diambil orang lain, mafia akan mencarimu juga karena kamu dicurigai
+      document.getElementById('huntAlert').classList.remove('hidden');
+    }
+  } else if(brankasOpened && !isMafia){
+    // Kalo KAMU yang buka brankas dan kamu bukan mafia, mafia mencarimu!
+    document.getElementById('huntAlert').classList.remove('hidden');
+  } else if(brankasOpened && isMafia){
+    document.getElementById('mafiaNotif').classList.remove('hidden');
+    document.getElementById('mafiaNotifText').innerText="Kamu berhasil membuka brankas! Hati-hati, warga sedang mencarimu!";
+  }
 }
 function updateBrankasBox(){
-  if(brankasOpened){
+  if(brankasTakenByOther){
+    document.getElementById('brankasIcon').innerText="😱";
+    document.getElementById('brankasTitle').innerText="BRANKAS SUDAH DIAMBIL ORANG!";
+    document.getElementById('brankasDesc').innerText=`Brankas sudah diambil ${brankasTakenByName}! Bukan kamu yang dapat!`;
+    document.getElementById('brankasStatus').innerText="Status: DIAMBIL ORANG LAIN!";
+    document.getElementById('brankasBtn').innerText="BRANKAS UDAH DIAMBIL 😭";
+  } else if(brankasOpened){
     document.getElementById('brankasIcon').innerText="💰";
     document.getElementById('brankasTitle').innerText="BRANKAS SUDAH TERBUKA! 🎉";
     document.getElementById('brankasDesc').innerText="Kamu berhasil jawab teka-teki! Brankas sudah kebuka!";
@@ -278,24 +317,23 @@ function askQuestion(){
   if(q==="1") ans = (p.ciri.includes("Gugup Kalau Ditanya")!==lie) ? "Aduh... aku... aku gugup... tangan aku dingin..." : "Aku santai aja, gak gugup sama sekali.";
   if(q==="2") ans = (p.ciri.includes("Suka Menyendiri")!==lie) ? "Aku sendiri aja semalam, gak sama siapa-siapa..." : "Aku sama yang lain, rame-rame!";
   if(q==="3") ans = "Bukan! Aku bukan mafia!";
-  document.getElementById('chatLog').innerText=`Kamu ke ${p.name}: ${questions[q]}\n${p.name}: ${ans}\n\nCocokin sama ciri-ciri mafia di atas! Apakah jawaban dia mengarah ke ciri mafia?`;
+  document.getElementById('chatLog').innerText=`Kamu ke ${p.name}: ${questions[q]}\n${p.name}: ${ans}\n\nCocokin sama ciri-ciri mafia di atas!`;
 }
-// === BRANKAS - BUKA DARI DALAM TANYA-TANYA ===
 function openBrankas(){
-  // Pause timer biar gak habis pas jawab teka-teki
+  if(brankasTakenByOther){ alert("Brankas udah diambil "+brankasTakenByName+"! Kamu telat!"); return; }
+  if(brankasOpened){ alert("Brankas kamu udah kebuka!"); return; }
   clearInterval(timerInt);
   tekaIndex=0; tekaBenar=0; brankasTried=true;
   show('screen-brankas'); showTeka();
 }
 function backToGame(){
   show('screen-game');
-  // Lanjutin timer dari sisa waktu
   timerInt=setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(timerInt); if(session===1) goNight(); else openVote(); } },1000);
   updateBrankasBox();
 }
 function showTeka(){
-  let t=tekaList[tekaIndex];
-  document.getElementById('tekaTitle').innerText=`Teka-teki ${tekaIndex+1} dari 3`;
+  let t=currentTeka[tekaIndex];
+  document.getElementById('tekaTitle').innerText=`Teka-teki ${tekaIndex+1} dari 3 - SUSAH!`;
   document.getElementById('tekaSoal').innerText=t.soal;
   document.getElementById('tekaScore').innerText=`Benar: ${tekaBenar} / 3`;
   let box=document.getElementById('tekaOpts'); box.innerHTML="";
@@ -305,17 +343,17 @@ function showTeka(){
     b.onclick=()=>{
       if(i===t.jawab){ tekaBenar++; alert("BENAR! ✅"); } else { alert("SALAH! ❌ Jawabannya: "+t.opts[t.jawab]); }
       tekaIndex++;
-      if(tekaIndex<tekaList.length) showTeka();
+      if(tekaIndex<currentTeka.length) showTeka();
       else {
         if(tekaBenar>=2){
           brankasOpened=true;
-          alert("🎉 BRANKAS TERBUKA! Kamu berhasil jawab "+tekaBenar+"/3 teka-teki! Kamu dapat hadiah dari brankas!");
+          alert("🎉 BRANKAS TERBUKA! Kamu berhasil jawab "+tekaBenar+"/3! Tapi hati-hati... MAFIA SEDANG MENCARIMU!");
         } else {
-          alert("Brankas masih terkunci... Kamu cuma benar "+tekaBenar+"/3. Coba lagi nanti!");
+          alert("Brankas masih terkunci... Kamu cuma benar "+tekaBenar+"/3. Teka-tekinya susah ya? Coba lagi nanti!");
         }
         show('screen-game');
         timerInt=setInterval(()=>{ timeLeft--; updateTimer(); if(timeLeft<=0){ clearInterval(timerInt); if(session===1) goNight(); else openVote(); } },1000);
-        updateBrankasBox();
+        updateBrankasBox(); updateAlerts();
       }
     };
     box.appendChild(b);
@@ -340,12 +378,19 @@ function goNight(){
   clearInterval(timerInt); show('screen-night');
   document.getElementById('nightProgress').innerText="Semua tertidur... Ada yang bergerak dalam gelap...";
   setTimeout(()=>{
+    // 35% kemungkinan brankas diambil orang lain semalam kalau belum dibuka
+    if(!brankasOpened && !brankasTakenByOther && Math.random()<0.35){
+      let candidates=players.filter(p=>p.alive && p.name!==chosenMember);
+      let taker=candidates[Math.floor(Math.random()*candidates.length)];
+      brankasTakenByOther=true; brankasTakenByName=taker.name;
+    }
     let myRole=players[myIndex].role;
     if(myRole==="Mafia"||myRole==="Dokter"||myRole==="Polisi"){
       show('screen-game');
       document.getElementById('nightAction').classList.remove('hidden');
       document.getElementById('nightTitle').innerText=myRole==="Mafia"?"🌙 Kamu Mafia - Pilih Korban":myRole==="Dokter"?"🌙 Kamu Dokter - Pilih yang Diselamatkan":"🌙 Kamu Polisi - Pilih yang Dicek";
       document.getElementById('nightDesc').innerText=myRole==="Mafia"?"Pilih 1 orang untuk dibunuh malam ini.":myRole==="Dokter"?"Pilih 1 orang untuk diselamatkan.":"Pilih 1 orang untuk dicek.";
+      updateAlerts(); updateBrankasBox();
     } else {
       let alive=players.filter(p=>p.alive && !p.isMafia);
       let victim=alive[Math.floor(Math.random()*alive.length)];
@@ -365,7 +410,7 @@ function doNightAction(){
     alert(target.name + (target.isMafia ? " adalah MAFIA!" : " BUKAN mafia."));
     let alive=players.filter(p=>p.alive && !p.isMafia);
     let victim=alive[Math.floor(Math.random()*alive.length)];
-    victim.alive=false;
+    if(victim) victim.alive=false;
     showMorning(victim);
   } else if(myRole==="Dokter"){
     let alive=players.filter(p=>p.alive && !p.isMafia);
@@ -374,26 +419,50 @@ function doNightAction(){
     if(died) died.alive=false;
     showMorning(died);
   } else if(myRole==="Mafia"){
-    players[idx].alive=false;
+    if(players[idx]) players[idx].alive=false;
     showMorning(players[idx]);
   }
 }
 function showMorning(died){
+  clearInterval(timerInt);
   show('screen-morning');
-  document.getElementById('morningText').innerText=died ? `Tadi malam, ${died.name} ditemukan sudah tidak bernyawa... 😱\n\nCiri-ciri mafia:\n${mafiaCiri.map(c=>"- "+c.nama).join("\n")}` : "Tadi malam tidak ada yang mati! Dokter berhasil menyelamatkan seseorang! 🙏";
+  let txt=died ? `Tadi malam, ${died.name} ditemukan sudah tidak bernyawa... 😱\n\nCiri-ciri mafia:\n${mafiaCiri.map(c=>"- "+c.nama).join("\n")}` : "Tadi malam tidak ada yang mati! Dokter berhasil menyelamatkan seseorang! 🙏";
+  if(brankasTakenByOther){
+    txt+=`\n\n🔒 BRANKAS DIAMBIL! ${brankasTakenByName} sudah mengambil brankas semalam!`;
+    document.getElementById('morningHunt').classList.remove('hidden');
+    if(players[myIndex].role==="Mafia") document.getElementById('morningMafiaNotif').classList.remove('hidden');
+  } else {
+    document.getElementById('morningHunt').classList.add('hidden');
+    document.getElementById('morningMafiaNotif').classList.add('hidden');
+  }
+  document.getElementById('morningText').innerText=txt;
+  // FIX: pastikan tombol bisa dipencet, scroll ke tombol
+  setTimeout(()=>{ document.getElementById('btnLanjutSesi2').scrollIntoView({behavior:'smooth', block:'center'}); }, 300);
 }
+// FIX UTAMA: goSession2 sekarang bener-bener reset semua!
 function goSession2(){
+  console.log("goSession2 dipencet!");
+  clearInterval(timerInt);
   session=2;
   document.getElementById('phaseLabel').innerText="SESI 2 • FINAL";
-  document.getElementById('phaseDesc').innerText="Sesi terakhir! Interogasi lagi, lalu VOTE!";
-  show('screen-game'); renderPlayers(); startTimer(); updateBrankasBox();
+  // Sembunyikan semua box yang bisa nutupin tombol
+  document.getElementById('voteBox').classList.add('hidden');
+  document.getElementById('nightAction').classList.add('hidden');
+  document.getElementById('questionBox').classList.add('hidden');
+  show('screen-game');
+  renderPlayers();
+  updateBrankasBox();
+  updateAlerts();
+  startTimer();
+  window.scrollTo(0,0);
+  alert("Sesi 2 dimulai! Sekarang waktunya FINAL! Cari mafia-nya!");
 }
 function showResult(win){
   show('screen-result');
   let myRole=players[myIndex].role;
   let isMafiaPlayer=myRole==="Mafia";
   let mafiaNames=players.filter(p=>p.isMafia).map(p=>p.name).join(", ");
-  document.getElementById('revealCard').innerHTML=`<b>Ciri-ciri Mafia tadi:</b><br>${mafiaCiri.map(c=>"- "+c.nama).join("<br>")}<br><br><b>Mafia-nya adalah:</b><br>${mafiaNames}<br><br><b>Peran kamu:</b> ${chosenMember} - ${myRole}<br><b>Brankas:</b> ${brankasOpened? "TERBUKA! ✅ Kamu dapat hadiah!" : "Masih terkunci 🔒"}<br><b>Teka-teki benar:</b> ${tekaBenar}/3`;
+  document.getElementById('revealCard').innerHTML=`<b>Ciri-ciri Mafia tadi:</b><br>${mafiaCiri.map(c=>"- "+c.nama).join("<br>")}<br><br><b>Mafia-nya adalah:</b><br>${mafiaNames}<br><br><b>Peran kamu:</b> ${chosenMember} - ${myRole}<br><b>Brankas:</b> ${brankasOpened? "TERBUKA! ✅ Kamu dapat hadiah!" : brankasTakenByOther? "DIAMBIL "+brankasTakenByName+"! 😭" : "Masih terkunci 🔒"}<br><b>Teka-teki benar:</b> ${tekaBenar}/3`;
   if(isMafiaPlayer && !win){
     document.getElementById('resultEmoji').innerText="💰";
     document.getElementById('resultTitle').innerText="MAFIA MENANG!";
@@ -408,6 +477,11 @@ function showResult(win){
     document.getElementById('resultDesc').innerText=`Yahh, mafia berhasil menang...\n\nMAFIA MENANG! Selamat untuk para mafia, anda mendapatkan hadiah dari brankas!`;
   }
 }
+// Backup: kalau onclick gagal, ini yang jalanin
+document.addEventListener('DOMContentLoaded', ()=>{
+  let btn=document.getElementById('btnLanjutSesi2');
+  if(btn) btn.addEventListener('click', goSession2);
+});
 </script>
 </body>
 </html>
