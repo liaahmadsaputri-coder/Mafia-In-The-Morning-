@@ -8,7 +8,7 @@
   *{box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
   body{margin:0;background:#0f0f0f;color:#fff;min-height:100vh}
   .wrap{max-width:480px;margin:0 auto;padding:16px 14px 40px}
-  h1{text-align:center;font-size:28px;margin:6px 0 2px;letter-spacing:1px}
+  h1{text-align:center;font-size:28px;margin:6px 0 2px}
   h1 span{color:#ff2d2d}
   .sub{text-align:center;color:#aaa;font-size:13px;margin-bottom:14px}
   .card{background:#1c1c1c;border:1px solid #333;border-radius:16px;padding:14px;margin-bottom:12px}
@@ -48,37 +48,34 @@
   <div id="screen-start">
     <div class="card warn">
       <b>⚠️ WARNING: JANGAN PERCAYA 100 PERSEN.</b><br><br>
-      Semua orang di sini licik! Mereka bisa berbohong, berpura-pura, dan menjebak kamu. Jangan percaya siapapun, bahkan yang kelihatan paling baik!
+      Semua orang di sini licik! Mereka bisa berbohong, berpura-pura, dan menjebak kamu. Jangan percaya siapapun!
     </div>
     <div class="card">
       <b>🎭 CARA MAIN:</b><br>
       - Sesi 1: Pancingan, belum ada Buka Kartu<br>
       - Sesi 2: Buka Kartu + Mafia Mutan muncul<br>
       - Mutan harus mati, kalau tidak kamu KALAH!
-      <input id="myName" placeholder="Nama kamu... (misal: Raka)" value="Kamu">
+      <input id="myName" placeholder="Nama kamu..." value="Kamu">
       <button class="btn-red" onclick="startGame()">MULAI GAME 🔥</button>
     </div>
   </div>
 
   <div id="screen-game" class="hidden">
     <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-      <div><b id="sessionLabel">SESI 1 - PANCINGAN</b><br><span id="sisaInfo" style="font-size:12px;color:#aaa">Sisa Buka Kartu: -</span></div>
+      <div><b id="sessionLabel">SESI 1 - PANCINGAN</b><br><span id="sisaInfo" style="font-size:12px;color:#aaa"></span></div>
       <div class="big" id="aliveCount">13 Hidup</div>
     </div>
-
-    <div id="warningBox" class="card warn hidden"><b>⚠️ MAFIA TELAH BERPURA-PURA MENJADI ORANG LAIN!</b><br><span style="font-size:13px">Hati-hati! Mafia sedang menyamar!</span></div>
-
+    <div id="warningBox" class="card warn hidden"><b>⚠️ MAFIA TELAH BERPURA-PURA MENJADI ORANG LAIN!</b></div>
     <div class="card">
-      <b>💬 PANCINGAN - Tanya / Tuduh:</b>
+      <b>💬 PANCINGAN:</b>
       <div class="grid" style="margin-top:8px">
         <button class="btn-dark" onclick="ask('tuduh')">😡 Nyalahin Orang</button>
         <button class="btn-dark" onclick="ask('brankas')">💰 Brankas</button>
         <button class="btn-dark" onclick="ask('malam')">🌙 Tadi Malam</button>
         <button class="btn-dark" onclick="ask('bela')">🛡️ Bela Diri</button>
       </div>
-      <p style="font-size:12px;color:#aaa;margin:8px 0 0">Klik pemain dulu, baru klik pancingan. Perhatikan: Mafia nyalahin 1 orang yang sama terus + ngotot! Warga nyalahin ganti-ganti + ragu-ragu!</p>
+      <p style="font-size:12px;color:#aaa">Klik pemain dulu, baru klik pancingan. Mafia nyalahin 1 orang yang sama terus + ngotot! Warga nyalahin ganti-ganti + ragu-ragu!</p>
     </div>
-
     <div id="bukaKartuBox" class="card yellow hidden">
       <b>🃏 BUKA KARTU - DI BAWAH BRANKAS</b><br>
       <span style="font-size:13px">Cari mafia dengan Buka Kartu! Yang memiliki Kartu <b class="dangerous">DANGEROUS</b> adalah MAFIA!<br>Tapi hati-hati, Mutan kartunya Remi!</span>
@@ -86,19 +83,12 @@
       <button class="btn-yellow" onclick="bukaKartu()">🃏 BUKA KARTU ORANG INI</button>
       <div id="hasilKartu" style="margin-top:8px;font-weight:800"></div>
     </div>
-
     <div class="card">
-      <b>👥 13 ORANG - Klik untuk pilih, lalu Vote untuk bunuh:</b>
+      <b>👥 13 ORANG - Klik untuk pilih, lalu Vote:</b>
       <div class="grid" id="players" style="margin-top:10px"></div>
       <button class="btn-red" onclick="vote()">🗳️ VOTE BUNUH ORANG YANG DIPILIH</button>
-      <p style="font-size:12px;color:#aaa;text-align:center">Pilih 1 orang yang paling mencurigakan!</p>
     </div>
-
-    <div class="card">
-      <b>💬 OBROLAN:</b>
-      <div class="chat" id="chat"></div>
-    </div>
-
+    <div class="card"><b>💬 OBROLAN:</b><div class="chat" id="chat"></div></div>
     <button class="btn-white hidden" id="btnSesi2" onclick="showSesi2Warning()">➡️ MASUK SESI 2</button>
   </div>
 
@@ -130,157 +120,92 @@
 </div>
 
 <script>
-let names = ["Raka","Sinta","Budi","Ayu","Dimas","Nadia","Fajar","Putri","Rizky","Lina","Andi","Maya","Kamu"];
-let avas = ["👦","👧","🧑","👩","👨","👩‍🦰","🧔","👱‍♀️","👦","👧","👨‍🦱","👩‍🦱","😎"];
-let players = [];
-let selected = -1;
-let sesi = 1;
-let sisaKartu = 5;
-let chatEl = document.getElementById('chat');
-let warningTimer;
-
+let names=["Raka","Sinta","Budi","Ayu","Dimas","Nadia","Fajar","Putri","Rizky","Lina","Andi","Maya","Kamu"];
+let avas=["👦","👧","🧑","👩","👨","👩‍🦰","🧔","👱‍♀️","👦","👧","👨‍🦱","👩‍🦱","😎"];
+let players=[],selected=-1,sesi=1,sisaKartu=5,chatEl=document.getElementById('chat'),warningTimer;
 function startGame(){
-  let myName = document.getElementById('myName').value || "Kamu";
-  names[12] = myName;
-  let idx = [0,1,2,3,4,5,6,7,8,9,10,11].sort(()=>Math.random()-0.5);
-  let mafiaIdx = idx.slice(0,3);
-  let remi = ["10 Sekop","As Hati","King Keriting","Queen Wajik","9 Hati","7 Sekop","Jack Hati","8 Keriting","5 Wajik","10 Hati","2 Sekop","As Keriting"];
-  players = names.map((n,i)=>{
-    let isMafia = mafiaIdx.includes(i);
-    return {name:n, ava:avas[i], alive:true, isMafia:isMafia, isMutant:false, card: isMafia ? "DANGEROUS" : remi[i%remi.length]}
-  });
+  let myName=document.getElementById('myName').value||"Kamu"; names[12]=myName;
+  let idx=[0,1,2,3,4,5,6,7,8,9,10,11].sort(()=>Math.random()-0.5);
+  let mafiaIdx=idx.slice(0,3);
+  let remi=["10 Sekop","As Hati","King Keriting","Queen Wajik","9 Hati","7 Sekop","Jack Hati","8 Keriting","5 Wajik","10 Hati","2 Sekop","As Keriting"];
+  players=names.map((n,i)=>{let isMafia=mafiaIdx.includes(i); return {name:n,ava:avas[i],alive:true,isMafia:isMafia,isMutant:false,card:isMafia?"DANGEROUS":remi[i%remi.length]}});
   document.getElementById('screen-start').classList.add('hidden');
   document.getElementById('screen-game').classList.remove('hidden');
   render();
   addChat("SYSTEM","Selamat datang! Sesi 1 dimulai! Jangan percaya 100 persen!",true);
   addChat("SYSTEM","Tugas: Cari 3 mafia dengan pancingan!",true);
-  warningTimer = setInterval(()=>{
-    if(sesi===1){
-      let b = document.getElementById('warningBox');
-      b.classList.remove('hidden');
-      addChat("SYSTEM","⚠️ MAFIA TELAH BERPURA-PURA MENJADI ORANG LAIN!",true);
-      setTimeout(()=>b.classList.add('hidden'),5000);
-    }
-  },30000);
-  setTimeout(()=>{ addChat("Raka","Guys, aku curiga sama Sinta deh. Dari tadi diem aja.","mafia"); },800);
+  warningTimer=setInterval(()=>{if(sesi===1){let b=document.getElementById('warningBox');b.classList.remove('hidden');addChat("SYSTEM","⚠️ MAFIA TELAH BERPURA-PURA MENJADI ORANG LAIN!",true);setTimeout(()=>b.classList.add('hidden'),5000);}},30000);
+  setTimeout(()=>{addChat("Raka","Guys, aku curiga sama Sinta deh. Dari tadi diem aja.","mafia");},800);
 }
-
 function render(){
-  let el = document.getElementById('players');
-  el.innerHTML = "";
-  players.forEach((p,i)=>{
-    let d = document.createElement('div');
-    d.className = "player" + (selected===i?" sel":"") + (!p.alive?" dead":"");
-    d.onclick = ()=>{ selected=i; render(); };
-    d.innerHTML = `<div class="ava">${p.ava}</div><div class="name">${p.name}</div><div class="role">${!p.alive?"💀 MATI": p.name===names[12]?"(Kamu)":""}</div>`;
-    el.appendChild(d);
-  });
-  let alive = players.filter(p=>p.alive).length;
-  document.getElementById('aliveCount').innerText = alive+" Hidup";
-  document.getElementById('sessionLabel').innerText = sesi===1 ? "SESI 1 - PANCINGAN" : "SESI 2 - BUKA KARTU + MUTAN";
-  document.getElementById('sisaInfo').innerText = sesi===1 ? "Sisa Buka Kartu: Belum Ada (Sesi 2 baru ada)" : "Sisa Buka Kartu: "+sisaKartu+" orang lagi";
-  document.getElementById('sisaKartu').innerText = sisaKartu;
-  if(sesi===1 && alive<=10) document.getElementById('btnSesi2').classList.remove('hidden');
+  let el=document.getElementById('players'); el.innerHTML="";
+  players.forEach((p,i)=>{let d=document.createElement('div');d.className="player"+(selected===i?" sel":"")+(!p.alive?" dead":"");d.onclick=()=>{selected=i;render();};d.innerHTML=`<div class="ava">${p.ava}</div><div class="name">${p.name}</div><div class="role">${!p.alive?"💀 MATI":p.name===names[12]?"(Kamu)":""}</div>`;el.appendChild(d);});
+  let alive=players.filter(p=>p.alive).length;
+  document.getElementById('aliveCount').innerText=alive+" Hidup";
+  document.getElementById('sessionLabel').innerText=sesi===1?"SESI 1 - PANCINGAN":"SESI 2 - BUKA KARTU + MUTAN";
+  document.getElementById('sisaInfo').innerText=sesi===1?"Sisa Buka Kartu: Belum Ada (Sesi 2 baru ada)":"Sisa Buka Kartu: "+sisaKartu+" orang lagi";
+  document.getElementById('sisaKartu').innerText=sisaKartu;
+  if(sesi===1&&alive<=10) document.getElementById('btnSesi2').classList.remove('hidden');
   if(sesi===2) document.getElementById('bukaKartuBox').classList.remove('hidden');
 }
-
-function addChat(name,msg,type){
-  let p = document.createElement('p');
-  p.className = type===true?"sys":type==="mafia"?"mafia":type==="me"?"me":"";
-  p.innerHTML = `<b>${name}:</b> ${msg}`;
-  chatEl.appendChild(p);
-  chatEl.scrollTop = chatEl.scrollHeight;
-}
-
+function addChat(name,msg,type){let p=document.createElement('p');p.className=type===true?"sys":type==="mafia"?"mafia":type==="me"?"me":"";p.innerHTML=`<b>${name}:</b> ${msg}`;chatEl.appendChild(p);chatEl.scrollTop=chatEl.scrollHeight;}
 function ask(type){
-  if(selected===-1){ alert("Pilih orang dulu!"); return; }
-  let target = players[selected];
-  if(!target.alive){ alert("Dia udah mati!"); return; }
-  let myName = names[12];
-  let q = "";
-  if(type==='tuduh') q = `Eh ${target.name}, kenapa kamu nyalahin ${players[0].name} terus?`;
-  if(type==='brankas') q = `${target.name}, kalo brankas dibuka, kamu berani jamin kamu bukan mafia?`;
-  if(type==='malam') q = `${target.name}, tadi malam kamu ngapain aja?`;
-  if(type==='bela') q = `${target.name}, coba bela diri kamu! Kenapa kita harus percaya kamu?`;
+  if(selected===-1){alert("Pilih orang dulu!");return;}
+  let target=players[selected]; if(!target.alive){alert("Dia udah mati!");return;}
+  let myName=names[12]; let q="";
+  if(type==='tuduh') q=`Eh ${target.name}, kenapa kamu nyalahin ${players[0].name} terus?`;
+  if(type==='brankas') q=`${target.name}, kalo brankas dibuka, kamu berani jamin kamu bukan mafia?`;
+  if(type==='malam') q=`${target.name}, tadi malam kamu ngapain aja?`;
+  if(type==='bela') q=`${target.name}, coba bela diri kamu! Kenapa kita harus percaya kamu?`;
   addChat(myName,q,"me");
   setTimeout(()=>{
     if(target.isMutant){
-      let replies = [
-        `APASIH?! GUE BUKAN MAFIA! LO YANG MAFIA! JANGAN FITNAH GUE! 😡😡`,
-        `DIEM LO! GUE GAK SALAH! LO TUH YANG MENCURIGAKAN! GUE BUNUH LO NANTI!`,
-        `WOY! BERANI-BERANINYA NUDUH GUE?! GUE WARGA! LO YANG MUTAN!`
-      ];
-      addChat(target.name, replies[Math.floor(Math.random()*replies.length)], "mafia");
+      let replies=[`APASIH?! GUE BUKAN MAFIA! LO YANG MAFIA! JANGAN FITNAH GUE! 😡😡`,`DIEM LO! GUE GAK SALAH! LO TUH YANG MENCURIGAKAN! GUE BUNUH LO NANTI!`,`WOY! BERANI-BERANINYA NUDUH GUE?! GUE WARGA! LO YANG MUTAN!`];
+      addChat(target.name,replies[Math.floor(Math.random()*replies.length)],"mafia");
       addChat("SYSTEM","⚠️ Dia sangat agresif... Jangan-jangan dia Mutan?",true);
     } else if(target.isMafia){
-      addChat(target.name, `Bukan gue! Udah jelas ${players[0].name} yang mafia! Dari tadi gue bilang ${players[0].name} terus! Lo gak denger?! GUE YAKIN 100% ${players[0].name} MAFIA!`, "mafia");
+      addChat(target.name,`Bukan gue! Udah jelas ${players[0].name} yang mafia! Dari tadi gue bilang ${players[0].name} terus! Lo gak denger?! GUE YAKIN 100% ${players[0].name} MAFIA!`,"mafia");
     } else {
-      let others = players.filter(p=>p.alive && p.name!==target.name && p.name!==myName);
-      let random = others[Math.floor(Math.random()*others.length)].name;
-      let replies = [
-        `Hmm... aku sih ragu-ragu... Tadi aku curiga ${random}, tapi sekarang curiga ${players[0].name} juga... Gak tau deh...`,
-        `Aku? Aku gak tau... Aku tadi cuma diem... Mungkin ${random}? Atau bukan? Aku bingung...`,
-        `Jangan tuduh aku... Aku beneran warga... Aku sih curiga sama ${random}, tapi gak yakin...`
-      ];
-      addChat(target.name, replies[Math.floor(Math.random()*replies.length)]);
+      let others=players.filter(p=>p.alive&&p.name!==target.name&&p.name!==myName);
+      let random=others[Math.floor(Math.random()*others.length)].name;
+      let replies=[`Hmm... aku sih ragu-ragu... Tadi aku curiga ${random}, tapi sekarang curiga ${players[0].name} juga... Gak tau deh...`,`Aku? Aku gak tau... Aku tadi cuma diem... Mungkin ${random}? Atau bukan? Aku bingung...`,`Jangan tuduh aku... Aku beneran warga... Aku sih curiga sama ${random}, tapi gak yakin...`];
+      addChat(target.name,replies[Math.floor(Math.random()*replies.length)]);
     }
   },600);
 }
-
 function bukaKartu(){
-  if(sesi!==2){ alert("Buka Kartu cuma di Sesi 2!"); return; }
-  if(sisaKartu<=0){ alert("Jatah Buka Kartu habis! Cuma 5 orang!"); return; }
-  if(selected===-1){ alert("Pilih orang dulu!"); return; }
-  let target = players[selected];
-  if(!target.alive){ alert("Dia udah mati!"); return; }
+  if(sesi!==2){alert("Buka Kartu cuma di Sesi 2!");return;}
+  if(sisaKartu<=0){alert("Jatah Buka Kartu habis! Cuma 5 orang!");return;}
+  if(selected===-1){alert("Pilih orang dulu!");return;}
+  let target=players[selected]; if(!target.alive){alert("Dia udah mati!");return;}
   sisaKartu--;
-  let hasil = document.getElementById('hasilKartu');
-  if(target.card==="DANGEROUS"){
-    hasil.innerHTML = `🃏 ${target.name}: Kartu <span class="dangerous">DANGEROUS</span>!!! DIA MAFIA!`;
-    addChat("SYSTEM",`🃏 ${target.name} dibuka kartunya: DANGEROUS! DIA MAFIA!`,true);
-  } else {
-    hasil.innerHTML = `🃏 ${target.name}: Kartu ${target.card} (Remi) - Kelihatannya warga... Tapi hati-hati, Mutan juga kartunya Remi!`;
-    addChat("SYSTEM",`🃏 ${target.name} dibuka kartunya: ${target.card} - Kelihatannya warga...`,true);
-    if(target.isMutant) addChat("SYSTEM","⚠️ Tapi dia tadi sangat agresif... Jangan-jangan dia Mutan?",true);
-  }
+  let hasil=document.getElementById('hasilKartu');
+  if(target.card==="DANGEROUS"){hasil.innerHTML=`🃏 ${target.name}: Kartu <span class="dangerous">DANGEROUS</span>!!! DIA MAFIA!`;addChat("SYSTEM",`🃏 ${target.name} dibuka kartunya: DANGEROUS! DIA MAFIA!`,true);}
+  else{hasil.innerHTML=`🃏 ${target.name}: Kartu ${target.card} (Remi) - Kelihatannya warga... Tapi hati-hati, Mutan juga kartunya Remi!`;addChat("SYSTEM",`🃏 ${target.name} dibuka kartunya: ${target.card} - Kelihatannya warga...`,true);if(target.isMutant) addChat("SYSTEM","⚠️ Tapi dia tadi sangat agresif... Jangan-jangan dia Mutan?",true);}
   render();
   if(sisaKartu===0) addChat("SYSTEM","Jatah Buka Kartu habis! Tinggal andalkan feeling untuk cari Mutan!",true);
 }
-
 function vote(){
-  if(selected===-1){ alert("Pilih orang dulu yang mau dibunuh!"); return; }
-  let target = players[selected];
-  if(!target.alive) return;
-  target.alive = false;
+  if(selected===-1){alert("Pilih orang dulu yang mau dibunuh!");return;}
+  let target=players[selected]; if(!target.alive) return;
+  target.alive=false;
   addChat("SYSTEM",`🗳️ ${target.name} DIBUNUH lewat voting!`,true);
-  if(target.isMutant){ endGame(true); return; }
-  if(target.isMafia){
-    addChat("SYSTEM",`Ternyata ${target.name} adalah MAFIA! Kartunya DANGEROUS! Bagus!`,true);
-  } else {
-    addChat("SYSTEM",`Ternyata ${target.name} adalah WARGA! Kartunya ${target.card}. Aduh salah bunuh...`,true);
-  }
-  let mafiaAlive = players.filter(p=>p.alive && p.isMafia && !p.isMutant).length;
-  let mutantAlive = players.some(p=>p.alive && p.isMutant);
-  if(sesi===2 && mafiaAlive===0 && mutantAlive){
-    addChat("SYSTEM","Mafia biasa habis! Tapi Mutan masih hidup! Kamu belum menang!",true);
-  }
-  let wargaAlive = players.filter(p=>p.alive && !p.isMafia).length;
-  if(wargaAlive<=3 && mutantAlive && sesi===2){ endGame(false); return; }
+  if(target.isMutant){endGame(true);return;}
+  if(target.isMafia){addChat("SYSTEM",`Ternyata ${target.name} adalah MAFIA! Kartunya DANGEROUS! Bagus!`,true);}
+  else{addChat("SYSTEM",`Ternyata ${target.name} adalah WARGA! Kartunya ${target.card}. Aduh salah bunuh...`,true);}
+  let mafiaAlive=players.filter(p=>p.alive&&p.isMafia&&!p.isMutant).length;
+  let mutantAlive=players.some(p=>p.alive&&p.isMutant);
+  if(sesi===2&&mafiaAlive===0&&mutantAlive){addChat("SYSTEM","Mafia biasa habis! Tapi Mutan masih hidup! Kamu belum menang!",true);}
+  let wargaAlive=players.filter(p=>p.alive&&!p.isMafia).length;
+  if(wargaAlive<=3&&mutantAlive&&sesi===2){endGame(false);return;}
   render();
 }
-
-function showSesi2Warning(){
-  document.getElementById('screen-game').classList.add('hidden');
-  document.getElementById('screen-sesi2warn').classList.remove('hidden');
-  clearInterval(warningTimer);
-}
-
+function showSesi2Warning(){document.getElementById('screen-game').classList.add('hidden');document.getElementById('screen-sesi2warn').classList.remove('hidden');clearInterval(warningTimer);}
 function enterSesi2(){
-  sesi = 2;
-  let candidates = players.filter(p=>p.alive && !p.isMafia && p.name!==names[12]);
-  let mutan = candidates[Math.floor(Math.random()*candidates.length)];
-  mutan.isMutant = true;
-  mutan.isMafia = true;
+  sesi=2;
+  let candidates=players.filter(p=>p.alive&&!p.isMafia&&p.name!==names[12]);
+  let mutan=candidates[Math.floor(Math.random()*candidates.length)];
+  mutan.isMutant=true; mutan.isMafia=true;
   document.getElementById('screen-sesi2warn').classList.add('hidden');
   document.getElementById('screen-game').classList.remove('hidden');
   render();
@@ -288,25 +213,14 @@ function enterSesi2(){
   addChat("SYSTEM","⚠️ Seorang warga telah berubah menjadi Mafia Mutan! Cari dia! Dia sangat agresif!",true);
   addChat(mutan.name,"APASIH?! GUE BUKAN MAFIA! KALIAN SEMUA BOHONG! GUE BUNUH KALIAN SEMUA! 😡","mafia");
 }
-
 function endGame(win){
   document.getElementById('screen-game').classList.add('hidden');
   document.getElementById('screen-end').classList.remove('hidden');
-  let title = document.getElementById('endTitle');
-  let desc = document.getElementById('endDesc');
-  let list = document.getElementById('endList');
-  let card = document.getElementById('endCard');
-  let mafiaList = players.filter(p=>p.isMafia).map(p=>`${p.name} - ${p.isMutant?"MUTAN (Remi: "+p.card+")":"MAFIA (DANGEROUS)"}`).join("<br>");
-  list.innerHTML = "<b>Daftar Mafia:</b><br>"+mafiaList;
-  if(win){
-    title.innerText = "🎉 KAMU MENANG!";
-    desc.innerText = "Mafia Mutan mati! Kamu berhasil membunuh Mutan!";
-    card.style.border = "2px solid #22c55e";
-  } else {
-    title.innerText = "💀 KAMU KALAH!";
-    desc.innerText = "Mafia Mutan masih hidup! Kalau Mutan tidak mati, kamu kalah! Coba lagi, jangan percaya 100 persen!";
-    card.style.border = "2px solid #ff2d2d";
-  }
+  let title=document.getElementById('endTitle');let desc=document.getElementById('endDesc');let list=document.getElementById('endList');let card=document.getElementById('endCard');
+  let mafiaList=players.filter(p=>p.isMafia).map(p=>`${p.name} - ${p.isMutant?"MUTAN (Remi: "+p.card+")":"MAFIA (DANGEROUS)"}`).join("<br>");
+  list.innerHTML="<b>Daftar Mafia:</b><br>"+mafiaList;
+  if(win){title.innerText="🎉 KAMU MENANG!";desc.innerText="Mafia Mutan mati! Kamu berhasil membunuh Mutan!";card.style.border="2px solid #22c55e";}
+  else{title.innerText="💀 KAMU KALAH!";desc.innerText="Mafia Mutan masih hidup! Kalau Mutan tidak mati, kamu kalah! Coba lagi, jangan percaya 100 persen!";card.style.border="2px solid #ff2d2d";}
 }
 </script>
 </body>
