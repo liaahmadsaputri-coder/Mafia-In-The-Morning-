@@ -76,11 +76,11 @@
       - Sesi 1: 2 Menit Interogasi Biasa<br>
       - Member lain bisa kirim PESAN ke kamu (💌) dan kamu bisa balas atau tanya balik. Ingat: mafia bisa bohong!<br>
       - Malam: Mafia membunuh, Dokter menyelamatkan<br>
-      - 🔪 Kamu bisa dibunuh mafia! Kalau kamu menuduh mafia atau terlalu banyak bertanya, dia akan dendam dan memburumu. Brankas yang terbuka juga bikin kamu jadi target.<br>
+      - 🔪 Kamu bisa dibunuh mafia, tapi peluangnya kecil kalau kamu tidak mencolok. Menuduh mafia secara langsung atau membuka brankas bikin peluangmu jadi target naik.<br>
       - Kalau kamu yang terbunuh atau ter-vote, kamu KALAH<br>
       - Pagi: Pengumuman siapa yang mati<br>
       - Sesi 2: 2 Menit final + Pancingan + Buka Kartu (3 orang) + VOTE<br>
-      - Brankas: jawab minimal 2 dari 3 teka-teki. Kalau terbuka kamu dapat +2 jatah Buka Kartu, tapi mafia akan memburumu!
+      - Brankas: jawab minimal 2 dari 3 teka-teki. Kalau terbuka kamu dapat +2 jatah Buka Kartu, tapi risiko jadi target naik!
     </p>
   </div>
   <div class="card">
@@ -171,7 +171,7 @@
   <div class="card brankasBox center">
     <div style="font-size:50px" id="brankasIcon">🔒</div>
     <b class="gold" id="brankasTitle">BRANKAS - MASIH TERKUNCI</b>
-    <p class="small" id="brankasDesc">Buka brankas = +2 jatah Buka Kartu, tapi mafia akan memburumu!</p>
+    <p class="small" id="brankasDesc">Buka brankas = +2 jatah Buka Kartu, tapi risiko jadi target mafia naik!</p>
     <p class="small" id="brankasStatus">Status: Belum dibuka • Teka-teki: Belum dijawab</p>
     <button class="btn" id="brankasBtn" onclick="openBrankas()">🔒 BUKA BRANKAS - JAWAB TEKA-TEKI</button>
   </div>
@@ -429,7 +429,7 @@ function updateBrankasBox(){
   } else if(brankasOpened){
     document.getElementById('brankasIcon').innerText="💰";
     document.getElementById('brankasTitle').innerText="BRANKAS SUDAH TERBUKA! 🎉";
-    document.getElementById('brankasDesc').innerText="Hadiah: +2 jatah Buka Kartu. Tapi hati-hati, mafia memburumu!";
+    document.getElementById('brankasDesc').innerText="Hadiah: +2 jatah Buka Kartu. Tapi hati-hati, mafia mengincarmu!";
     document.getElementById('brankasStatus').innerText=`Status: TERBUKA • Benar: ${tekaBenar}/3`;
     document.getElementById('brankasBtn').innerText="BRANKAS UDAH KEBUKA ✅";
   } else if(brankasTried){
@@ -484,8 +484,7 @@ function askQuestion(){
   let has = p.ciri.includes(c.nama);
   let ans = (has!==lie) ? c.y : c.n;
   let extra="";
-  // Mafia yang ketahuan punya ciri mafia bisa mulai curiga & dendam
-  if(p.isMafia && !p.isMutant && !players[myIndex].isMafia && mafiaCiri.some(m=>m.nama===c.nama) && Math.random()<0.2 && !p.grudge){
+  if(p.isMafia && !p.isMutant && !players[myIndex].isMafia && mafiaCiri.some(m=>m.nama===c.nama) && Math.random()<0.08 && !p.grudge){
     p.grudge=true;
     extra=`\n\n👀 ${p.name} menatapmu tajam... sepertinya dia tidak suka kamu bertanya terus.`;
     updateAlerts();
@@ -552,7 +551,6 @@ function incomingDM(){
   if(!players[myIndex].alive) return;
   let cands=players.filter((p,i)=>p.alive && i!==myIndex);
   if(!cands.length) return;
-  // Mafia yang dendam lebih sering menghubungimu
   let me=players[myIndex];
   let grudgers=cands.filter(p=>p.isMafia && !p.isMutant && p.grudge);
   if(!me.isMafia && grudgers.length && Math.random()<0.5) openDM(rand(grudgers), true);
@@ -584,8 +582,11 @@ function sendDM(){
     else if(p.isMafia) ans = `Hah? ${xn}? Bukan! ${S} yang lebih mencurigakan, percaya deh!`;
     else { ans = rand([`Hmm... bisa jadi sih. Tapi aku masih curiga ${S}.`, `Oke, aku pertimbangkan ${xn}. Tadinya aku curiga ${S}.`]); if(Math.random()<0.4) p.lastSuspect=xn; }
     if(angry && X===dmWith) ans="APASIH?! JANGAN FITNAH GUE! LO YANG MENCURIGAKAN! 😡";
-    // Mafia yang dituduh langsung, atau temannya dituduh, jadi dendam
-    if(p.isMafia && !p.isMutant && !me.isMafia && (X===dmWith || players[X].isMafia)) makesThreat=true;
+    // Dendam hanya kadang-kadang: dituduh langsung 50%, temannya dituduh 20%
+    if(p.isMafia && !p.isMutant && !me.isMafia && !p.grudge){
+      if(X===dmWith && Math.random()<0.5) makesThreat=true;
+      else if(X!==dmWith && players[X].isMafia && Math.random()<0.2) makesThreat=true;
+    }
   } else {
     dmPush(`Kamu: ${texts[o]}`);
     if(o==="1"){
@@ -600,7 +601,7 @@ function sendDM(){
       if(angry) ans="APASIH?! GUE BUKAN MAFIA! JANGAN NUDUH GUE! 😡";
       else if(p.isMafia) ans=`Bukan lah! Jangan nuduh aku, ${S} tuh yang aneh!`;
       else ans=rand(["Bukan! Sumpah aku warga... kamu sendiri gimana?","Bukan kok... aku juga lagi bingung nyari mafianya."]);
-      if(p.isMafia && !p.isMutant && !me.isMafia) makesThreat=true;
+      if(p.isMafia && !p.isMutant && !me.isMafia && !p.grudge && Math.random()<0.25) makesThreat=true;
     } else if(o==="4"){
       let S=npcSuspect(p,false);
       ans = p.isMafia ? `Tetap ${S}! Aku gak pernah ganti.` : rand([`Sekarang... ${S} deh.`, `Hmm, masih mikir. Mungkin ${S}.`]);
@@ -709,7 +710,7 @@ function showTeka(){
       else {
         if(tekaBenar>=2){
           brankasOpened=true; sisaKartu+=2; kartuMax+=2;
-          alert("🎉 BRANKAS TERBUKA!\nHadiah: +2 jatah Buka Kartu.\n⚠️ Tapi mafia sekarang memburumu!");
+          alert("🎉 BRANKAS TERBUKA!\nHadiah: +2 jatah Buka Kartu.\n⚠️ Tapi mafia sekarang mengincarmu!");
         } else {
           alert("Brankas masih terkunci... Kamu cuma benar "+tekaBenar+"/3. Butuh minimal 2.");
         }
@@ -807,12 +808,12 @@ function resolveNight(choice){
     victim=players[choice];
     if(aiDoctor && Math.random()<0.3) saved=victim;
   } else {
-    // Peluang mafia memilih KAMU sebagai korban
-    let chance=0.35;
-    if(hasGrudge()) chance=0.75;
-    if(brankasOpened) chance+=0.25;
-    if(role==="Polisi") chance+=0.15;
-    chance=Math.min(chance,0.92);
+    // Peluang mafia memilih KAMU: kecil kalau tidak mencolok
+    let chance=0.10;
+    if(hasGrudge()) chance=0.35;
+    if(brankasOpened) chance+=0.20;
+    if(role==="Polisi") chance+=0.05;
+    chance=Math.min(chance,0.55);
     if(me.alive && Math.random()<chance) victim=me;
     else {
       let others=town.filter(p=>p!==me);
@@ -820,7 +821,10 @@ function resolveNight(choice){
     }
     attackedMe=(victim===me);
     if(role==="Dokter") saved=players[choice];
-    else if(aiDoctor && town.length) saved=rand(town);
+    else if(aiDoctor && town.length){
+      // Dokter AI punya 50% peluang menyelamatkanmu kalau kamu diserang
+      saved=(victim===me && Math.random()<0.5) ? me : rand(town);
+    }
   }
   let died=(victim && victim!==saved) ? victim : null;
   if(died){
