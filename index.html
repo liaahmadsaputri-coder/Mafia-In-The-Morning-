@@ -76,6 +76,7 @@
       - Sesi 1: 2 Menit Interogasi Biasa<br>
       - Member lain bisa kirim PESAN ke kamu (💌) dan kamu bisa balas atau tanya balik. Ingat: mafia bisa bohong!<br>
       - Malam: Mafia membunuh, Dokter menyelamatkan<br>
+      - 🔪 Kamu bisa dibunuh mafia! Kalau kamu menuduh mafia atau terlalu banyak bertanya, dia akan dendam dan memburumu. Brankas yang terbuka juga bikin kamu jadi target.<br>
       - Kalau kamu yang terbunuh atau ter-vote, kamu KALAH<br>
       - Pagi: Pengumuman siapa yang mati<br>
       - Sesi 2: 2 Menit final + Pancingan + Buka Kartu (3 orang) + VOTE<br>
@@ -99,6 +100,10 @@
 
   <div id="warning30" class="alertBox hidden">
     <b>⚠️ MAFIA TELAH BERPURA-PURA MENJADI ORANG LAIN!</b>
+  </div>
+  <div id="threatAlert" class="alertBox hidden">
+    <b>🔪 ADA MAFIA YANG DENDAM PADAMU!</b>
+    <p class="small">Hati-hati malam ini, kamu bisa jadi target!</p>
   </div>
   <div id="huntAlert" class="alertBox hidden">
     <b>⚠️ MAFIA SEDANG MENCARIMU! ⚠️</b>
@@ -204,7 +209,7 @@
   <div class="center" style="margin-top:20px">
     <div style="font-size:60px">☀️</div>
     <h1 class="gold">PAGI TELAH TIBA...</h1>
-    <div class="card"><p class="small" id="morningText"></p></div>
+    <div class="card"><p class="small" id="morningText" style="white-space:pre-line"></p></div>
     <div id="morningHunt" class="alertBox hidden"><b>⚠️ MAFIA SEDANG MENCARIMU!</b></div>
     <div id="morningStolen" class="notifBox hidden" style="border-color:#ff3b30"><b>💰 BRANKAS TELAH DICURI MAFIA!</b><p class="small" id="morningStolenText"></p></div>
     <div id="morningMafiaNotif" class="notifBox hidden"><b>🔔 BRANKAS DIAMBIL!</b><p class="small">Seseorang sudah mengambil brankas semalam!</p></div>
@@ -259,6 +264,13 @@ const ciriList=[
  {nama:"Suka Diam Tiba-Tiba", q:"Kok kamu sering diem mendadak?", y:"... (diam sebentar) ...hah? Oh, iya.", n:"Aku ngobrol terus kok, biasa aja."},
  {nama:"Tangan Dingin", q:"Tangan kamu dingin gak?", y:"Dingin banget, nih pegang.", n:"Biasa aja, hangat kok."},
  {nama:"Suka Ngalihin Pembicaraan", q:"Kamu curiga sama siapa?", y:"Eh, ngomong-ngomong, ada yang laper gak?", n:"Langsung aja, aku gak suka muter-muter."}
+];
+
+const threatLines=[
+ "Kamu mulai terlalu banyak tanya. Jaga-jaga tidurmu malam ini. 😈",
+ "Hati-hati ya... malam itu panjang. 🔪",
+ "Jangan sampai kamu yang gak bangun besok pagi. 😈",
+ "Aku gak suka dituduh. Kita lihat siapa yang masih hidup nanti pagi."
 ];
 
 const tekaPool=[
@@ -320,7 +332,7 @@ function confirmPilih(){
       let nonMafia=ciriList.filter(c=>!mafiaCiri.includes(c));
       if(Math.random()<0.5) ciri=[rand(nonMafia).nama];
     }
-    return {name:n, role:roles[i], ciri:ciri, alive:true, isMafia:roles[i]==="Mafia", isMutant:false, card:roles[i]==="Mafia"?"DANGEROUS":remiCards[i], blameTarget:null, lastSuspect:null, opened:false};
+    return {name:n, role:roles[i], ciri:ciri, alive:true, isMafia:roles[i]==="Mafia", isMutant:false, card:roles[i]==="Mafia"?"DANGEROUS":remiCards[i], blameTarget:null, lastSuspect:null, opened:false, grudge:false};
   });
   myIndex=allMembers.indexOf(chosenMember);
   let pool=[...tekaPool].sort(()=>Math.random()-0.5).slice(0,3);
@@ -336,8 +348,8 @@ function confirmPilih(){
   document.getElementById('arahanRole').innerText=players[myIndex].role;
   document.getElementById('arahanRoleDesc').innerText=
     players[myIndex].role==="Mafia"?"Kamu Mafia. Tutupi ciri-ciri kamu!":
-    players[myIndex].role==="Dokter"?"Kamu Dokter. Malam hari kamu bisa menyelamatkan 1 orang.":
-    players[myIndex].role==="Polisi"?"Kamu Polisi. Malam hari kamu bisa cek 1 orang.":
+    players[myIndex].role==="Dokter"?"Kamu Dokter. Malam hari kamu bisa menyelamatkan 1 orang (boleh dirimu sendiri).":
+    players[myIndex].role==="Polisi"?"Kamu Polisi. Malam hari kamu bisa cek 1 orang. Hati-hati, mafia suka mengincar polisi!":
     "Kamu Warga. Cari mafia dari ciri-cirinya!";
   document.getElementById('arahanCiri').innerHTML=mafiaCiri.map((c,i)=>`${i+1}. <b>${c.nama}</b>`).join("<br>");
   show('screen-arahan');
@@ -365,11 +377,16 @@ function startGamePlay(){
   document.getElementById('bukaKartuBox').classList.add('hidden');
 }
 
+function hasGrudge(){
+  return players.some(p=>p.alive && p.isMafia && !p.isMutant && p.grudge);
+}
+
 function updateAlerts(){
   let isMafia=players[myIndex].role==="Mafia";
   document.getElementById('huntAlert').classList.add('hidden');
   document.getElementById('mafiaNotif').classList.add('hidden');
   document.getElementById('stolenBox').classList.add('hidden');
+  document.getElementById('threatAlert').classList.toggle('hidden', isMafia || !hasGrudge());
   if(brankasStolenByMafia){
     document.getElementById('stolenBox').classList.remove('hidden');
     document.getElementById('stolenText').innerText=`${brankasStolenVictim} sudah dibunuh mafia! Brankasnya berhasil dicuri mafia!`;
@@ -466,7 +483,14 @@ function askQuestion(){
   let lie = p.isMafia ? Math.random()<0.3 : Math.random()<0.1;
   let has = p.ciri.includes(c.nama);
   let ans = (has!==lie) ? c.y : c.n;
-  document.getElementById('chatLog').innerText=`Kamu ke ${p.name}: ${c.q}\n${p.name}: ${ans}\n\nCocokin sama ciri-ciri mafia di atas! (Mafia kadang bohong)`;
+  let extra="";
+  // Mafia yang ketahuan punya ciri mafia bisa mulai curiga & dendam
+  if(p.isMafia && !p.isMutant && !players[myIndex].isMafia && mafiaCiri.some(m=>m.nama===c.nama) && Math.random()<0.2 && !p.grudge){
+    p.grudge=true;
+    extra=`\n\n👀 ${p.name} menatapmu tajam... sepertinya dia tidak suka kamu bertanya terus.`;
+    updateAlerts();
+  }
+  document.getElementById('chatLog').innerText=`Kamu ke ${p.name}: ${c.q}\n${p.name}: ${ans}${extra}\n\nCocokin sama ciri-ciri mafia di atas! (Mafia kadang bohong)`;
 }
 
 // ====== PESAN / DM ======
@@ -513,6 +537,7 @@ function openDM(p, incoming){
   if(!S) return;
   let msg;
   if(p.isMafia && !p.isMutant && me.isMafia) msg=`Psst, kita satu tim. Kita tuduh ${S} aja ya.`;
+  else if(incoming && p.isMafia && !p.isMutant && p.grudge && !me.isMafia) msg=rand(threatLines);
   else msg=rand([
     `Menurutku ${S} mencurigakan. Kamu curiga siapa?`,
     `Aku merasa ${S} mafianya. Kamu setuju?`,
@@ -527,7 +552,11 @@ function incomingDM(){
   if(!players[myIndex].alive) return;
   let cands=players.filter((p,i)=>p.alive && i!==myIndex);
   if(!cands.length) return;
-  openDM(rand(cands), true);
+  // Mafia yang dendam lebih sering menghubungimu
+  let me=players[myIndex];
+  let grudgers=cands.filter(p=>p.isMafia && !p.isMutant && p.grudge);
+  if(!me.isMafia && grudgers.length && Math.random()<0.5) openDM(rand(grudgers), true);
+  else openDM(rand(cands), true);
 }
 function chatSelected(){
   if(selected<0 || selected===myIndex){ alert("Klik dulu kartu member lain di atas!"); return; }
@@ -537,10 +566,12 @@ function sendDM(){
   if(dmWith<0){ alert("Belum ada yang chat kamu!"); return; }
   document.getElementById('dmNew').classList.add('hidden');
   let p=players[dmWith];
+  let me=players[myIndex];
   if(!p.alive){ dmPush(`(${p.name} sudah tidak bisa dihubungi)`); return; }
   let o=document.getElementById('dmSelect').value;
   let texts=["", "Kenapa kamu curiga dia?", "Kamu sendiri punya ciri mencurigakan gak?", "Kamu mafia bukan?", "Sekarang kamu curiga siapa?"];
   let ans="";
+  let makesThreat=false;
   let angry = p.isMutant && Math.random()<0.4;
   if(o==="0"){
     let X=parseInt(document.getElementById('dmSuspect').value);
@@ -553,6 +584,8 @@ function sendDM(){
     else if(p.isMafia) ans = `Hah? ${xn}? Bukan! ${S} yang lebih mencurigakan, percaya deh!`;
     else { ans = rand([`Hmm... bisa jadi sih. Tapi aku masih curiga ${S}.`, `Oke, aku pertimbangkan ${xn}. Tadinya aku curiga ${S}.`]); if(Math.random()<0.4) p.lastSuspect=xn; }
     if(angry && X===dmWith) ans="APASIH?! JANGAN FITNAH GUE! LO YANG MENCURIGAKAN! 😡";
+    // Mafia yang dituduh langsung, atau temannya dituduh, jadi dendam
+    if(p.isMafia && !p.isMutant && !me.isMafia && (X===dmWith || players[X].isMafia)) makesThreat=true;
   } else {
     dmPush(`Kamu: ${texts[o]}`);
     if(o==="1"){
@@ -567,12 +600,18 @@ function sendDM(){
       if(angry) ans="APASIH?! GUE BUKAN MAFIA! JANGAN NUDUH GUE! 😡";
       else if(p.isMafia) ans=`Bukan lah! Jangan nuduh aku, ${S} tuh yang aneh!`;
       else ans=rand(["Bukan! Sumpah aku warga... kamu sendiri gimana?","Bukan kok... aku juga lagi bingung nyari mafianya."]);
+      if(p.isMafia && !p.isMutant && !me.isMafia) makesThreat=true;
     } else if(o==="4"){
       let S=npcSuspect(p,false);
       ans = p.isMafia ? `Tetap ${S}! Aku gak pernah ganti.` : rand([`Sekarang... ${S} deh.`, `Hmm, masih mikir. Mungkin ${S}.`]);
     }
   }
   dmPush(`${p.name}: ${ans}`);
+  if(makesThreat){
+    p.grudge=true;
+    dmPush(`${p.name}: ${rand(threatLines)}`);
+    updateAlerts();
+  }
 }
 function startDM(){
   stopDM();
@@ -723,7 +762,9 @@ function fillNightSelect(role){
 
 function goNight(){
   clearInterval(timerInt); stopDM(); show('screen-night');
-  document.getElementById('nightProgress').innerText="Semua tertidur...";
+  let me=players[myIndex];
+  document.getElementById('nightProgress').innerText=
+    (!me.isMafia && hasGrudge()) ? "Kamu mendengar langkah kaki pelan di luar kamarmu... 😰🔪" : "Semua tertidur...";
   setTimeout(()=>{
     if(!brankasOpened && !brankasTakenByOther && !brankasStolenByMafia && Math.random()<0.35){
       let candidates=players.filter(p=>p.alive && p.name!==chosenMember);
@@ -736,13 +777,13 @@ function goNight(){
       fillNightSelect(myRole);
       document.getElementById('nightAction').classList.remove('hidden');
       document.getElementById('nightTitle').innerText=myRole==="Mafia"?"🌙 Kamu Mafia - Pilih Korban":myRole==="Dokter"?"🌙 Kamu Dokter - Pilih yang Diselamatkan":"🌙 Kamu Polisi - Pilih yang Dicek";
-      document.getElementById('nightDesc').innerText=myRole==="Mafia"?"Pilih 1 orang untuk dibunuh malam ini.":myRole==="Dokter"?"Pilih 1 orang untuk diselamatkan.":"Pilih 1 orang untuk dicek.";
+      document.getElementById('nightDesc').innerText=myRole==="Mafia"?"Pilih 1 orang untuk dibunuh malam ini.":myRole==="Dokter"?"Pilih 1 orang untuk diselamatkan. Boleh dirimu sendiri!":"Pilih 1 orang untuk dicek.";
       updateAlerts(); updateBrankasBox();
       document.getElementById('nightAction').scrollIntoView({behavior:'smooth',block:'center'});
     } else {
       resolveNight(null);
     }
-  },2000);
+  },2500);
 }
 
 function doNightAction(){
@@ -761,15 +802,25 @@ function resolveNight(choice){
   let me=players[myIndex], role=me.role;
   let town=players.filter(p=>p.alive && !p.isMafia);
   let aiDoctor=players.some(p=>p.alive && p.role==="Dokter" && p!==me);
-  let victim=null, saved=null;
+  let victim=null, saved=null, attackedMe=false;
   if(role==="Mafia"){
     victim=players[choice];
     if(aiDoctor && Math.random()<0.3) saved=victim;
   } else {
-    if(brankasOpened && Math.random()<0.5) victim=me;
-    else victim=rand(town);
+    // Peluang mafia memilih KAMU sebagai korban
+    let chance=0.35;
+    if(hasGrudge()) chance=0.75;
+    if(brankasOpened) chance+=0.25;
+    if(role==="Polisi") chance+=0.15;
+    chance=Math.min(chance,0.92);
+    if(me.alive && Math.random()<chance) victim=me;
+    else {
+      let others=town.filter(p=>p!==me);
+      victim=others.length?rand(others):me;
+    }
+    attackedMe=(victim===me);
     if(role==="Dokter") saved=players[choice];
-    else if(aiDoctor) saved=rand(town);
+    else if(aiDoctor && town.length) saved=rand(town);
   }
   let died=(victim && victim!==saved) ? victim : null;
   if(died){
@@ -777,17 +828,29 @@ function resolveNight(choice){
     if(died.name===brankasTakenByName){ brankasStolenByMafia=true; brankasStolenVictim=died.name; }
   }
   if(died===me){
-    endGame("💀","KAMU TERBUNUH!","Mafia menemukanmu semalam"+(brankasOpened?" gara-gara brankas yang kamu buka...":"..."));
+    let killers=players.filter(p=>p.isMafia && !p.isMutant && p.alive);
+    let grudgers=killers.filter(p=>p.grudge);
+    let killer=grudgers.length?rand(grudgers):(killers.length?rand(killers):null);
+    let kName=killer?killer.name:"Seorang mafia";
+    let why=brankasOpened?"gara-gara brankas yang kamu buka":(grudgers.length?"karena kamu menuduhnya":"karena kamu jadi targetnya");
+    endGame("💀","KAMU TERBUNUH!",`${kName} (Mafia) menyelinap ke kamarmu semalam dan membunuhmu, ${why}...`);
     return;
   }
-  showMorning(died);
+  let note="";
+  if(attackedMe && saved===me){
+    note = role==="Dokter"
+      ? "\n\n😰 Semalam ada mafia yang mencoba membunuhmu, tapi kamu berhasil menyelamatkan dirimu sendiri!"
+      : "\n\n😰 Semalam ada mafia yang mencoba membunuhmu, tapi Dokter berhasil menyelamatkanmu!";
+  }
+  showMorning(died, note);
 }
 
-function showMorning(died){
+function showMorning(died, note){
   clearInterval(timerInt); clearInterval(warning30Int); stopDM();
   show('screen-morning');
   ['morningHunt','morningStolen','morningMafiaNotif'].forEach(id=>document.getElementById(id).classList.add('hidden'));
   let txt=died ? `Tadi malam, ${died.name} ditemukan sudah tidak bernyawa... 😱\n\nCiri-ciri mafia:\n${mafiaCiri.map(c=>"- "+c.nama).join("\n")}` : "Tadi malam tidak ada yang mati! Dokter berhasil menyelamatkan seseorang! 🙏";
+  if(note) txt+=note;
   if(brankasStolenByMafia){
     txt+=`\n\n💰 BRANKAS TELAH DICURI MAFIA! ${brankasStolenVictim} sudah dibunuh mafia, brankasnya dicuri!`;
     document.getElementById('morningStolen').classList.remove('hidden');
